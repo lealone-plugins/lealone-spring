@@ -33,8 +33,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class SpringBootApplicationTest {
 
     public static void main(String[] args) throws Exception {
-        createService();
         SpringApplication.run(SpringBootApplicationTest.class, args);
+        createService();
     }
 
     public static void createService() throws Exception {
