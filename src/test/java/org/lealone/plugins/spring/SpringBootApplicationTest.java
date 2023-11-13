@@ -39,19 +39,21 @@ public class SpringBootApplicationTest {
 
     public static void createService() throws Exception {
         Connection conn = DriverManager.getConnection("jdbc:lealone:embed:lealone", "root", "");
-        String sql = "create service if not exists spring_service (test(name varchar) varchar)" //
+        String sql = "create service if not exists spring_service " //
                 + " implement by '" + SpringBootApplicationTest.class.getName() + "'";
         conn.createStatement().executeUpdate(sql);
         conn.close();
     }
 
-    // 用这样的url打开: http://localhost:8080/hello?name=zhh
+    // 用Spring的方式打开url: http://localhost:8080/hello?name=zhh
+    // 或者用Lealone微服务的方式打开url: http://localhost:8080/service/spring_service/hello?name=zhh
     @GetMapping("/hello")
     public String hello(@RequestParam(value = "name", defaultValue = "World") String name) {
         return String.format("Hello %s!", name);
     }
 
-    // 用这样的url打开: http://localhost:8080/service/spring_service/test?name=zhh
+    // 这个方法没有加注解不能用Spring的方式调用
+    // 只能用Lealone微服务的方式打开url: http://localhost:8080/service/spring_service/test?name=zhh
     public String test(String name) {
         return String.format("Hello %s!", name);
     }
