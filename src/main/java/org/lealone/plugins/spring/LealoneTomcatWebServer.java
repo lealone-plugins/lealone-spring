@@ -5,8 +5,9 @@
  */
 package org.lealone.plugins.spring;
 
+import org.lealone.db.scheduler.SchedulerFactory;
 import org.lealone.plugins.tomcat.TomcatServer;
-import org.lealone.server.AsyncServer;
+import org.lealone.server.scheduler.GlobalScheduler;
 import org.springframework.boot.web.embedded.tomcat.TomcatWebServer;
 import org.springframework.boot.web.server.WebServerException;
 
@@ -23,7 +24,7 @@ public class LealoneTomcatWebServer extends TomcatWebServer {
     public void start() throws WebServerException {
         super.start();
         server.start();
-        AsyncServer.initSchedulerFactory(server.getConfig());
-        AsyncServer.getSchedulerFactory().start();
+        SchedulerFactory.initDefaultSchedulerFactory(GlobalScheduler.class.getName(), server.getConfig())
+                .start();
     }
 }
