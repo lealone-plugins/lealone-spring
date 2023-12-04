@@ -19,6 +19,8 @@ package org.lealone.plugins.spring;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -38,7 +40,7 @@ public class SpringBootApplicationTest {
     }
 
     public static void createService() throws Exception {
-        Connection conn = DriverManager.getConnection("jdbc:lealone:embed:lealone", "root", "");
+        Connection conn = getConnection();
         String sql = "create service if not exists spring_service " //
                 + " implement by '" + SpringBootApplicationTest.class.getName() + "'";
         conn.createStatement().executeUpdate(sql);
@@ -56,5 +58,25 @@ public class SpringBootApplicationTest {
     // 只能用Lealone微服务的方式打开url: http://localhost:8080/service/spring_service/test?name=zhh
     public String test(String name) {
         return String.format("Hello %s!", name);
+    }
+
+    // 只能用Lealone微服务的方式打开url: http://localhost:8080/service/spring_service/crud
+    public String crud() {
+        try {
+            Connection conn = getConnection();
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate("DROP TABLE IF EXISTS test");
+            String sql = "CREATE TABLE IF NOT EXISTS test (f1 int primary key, f2 long)";
+            stmt.executeUpdate(sql);
+            stmt.executeUpdate("INSERT INTO test(f1, f2) VALUES(1, 1)");
+            conn.close();
+            return "ok";
+        } catch (SQLException e) {
+            return "exception: " + e.getMessage();
+        }
+    }
+
+    private static Connection getConnection() throws SQLException {
+        return DriverManager.getConnection("jdbc:lealone:embed:lealone", "root", "");
     }
 }
