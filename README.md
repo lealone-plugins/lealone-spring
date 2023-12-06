@@ -63,13 +63,6 @@ public class CrudController {
 ### 通过嵌入模式访问 lealone 数据库
 
 ```java
-/*
- * Copyright Lealone Database Group.
- * Licensed under the Server Side Public License, v 1.
- * Initial Developer: zhh
- */
-package org.lealone.plugins.spring;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
