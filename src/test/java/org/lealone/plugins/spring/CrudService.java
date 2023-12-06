@@ -61,10 +61,14 @@ public class CrudService {
         try {
             find.setString(1, name);
             ResultSet rs = find.executeQuery();
-            if (rs.next()) {
-                return "user(name: " + name + ", age: " + rs.getInt(1) + ")";
-            } else {
-                return "user not found: " + name;
+            try {
+                if (rs.next()) {
+                    return "user(name: " + name + ", age: " + rs.getInt(1) + ")";
+                } else {
+                    return "user not found: " + name;
+                }
+            } finally {
+                rs.close();
             }
         } catch (SQLException e) {
             return "exception: " + e.getMessage();

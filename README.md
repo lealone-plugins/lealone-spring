@@ -2,6 +2,7 @@
 
 使用 lealone-spring 插件可以用 tomcat + spring + lealone 这样的一体化方案开发 web 应用或微服务应用
 
+
 ### 在 pom.xml 中增加依赖
 
 ```xml
@@ -30,6 +31,45 @@ public class SpringDemo {
 ### 创建 CrudController
 
 ```java
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class CrudController {
+
+    private static final ThreadLocal<CrudService> crudServiceThreadLocal = ThreadLocal
+            .withInitial(() -> new CrudService());
+
+    private static CrudService getCrudService() {
+        return crudServiceThreadLocal.get();
+    }
+
+    // 打开url: http://localhost:8080/insert?name=zhh&age=18
+    @GetMapping("/insert")
+    public String insert(@RequestParam(value = "name", defaultValue = "zhh") String name,
+            @RequestParam("age") int age) {
+        return getCrudService().insert(name, age);
+    }
+
+    // 打开url: http://localhost:8080/find?name=zhh
+    @GetMapping("/find")
+    public String find(@RequestParam("name") String name) {
+        return getCrudService().find(name);
+    }
+}
+```
+
+### 通过嵌入模式访问 lealone 数据库
+
+```java
+/*
+ * Copyright Lealone Database Group.
+ * Licensed under the Server Side Public License, v 1.
+ * Initial Developer: zhh
+ */
+package org.lealone.plugins.spring;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -37,12 +77,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+public class CrudService {
 
-@RestController
-public class CrudController {
+    private static volatile boolean created;
+
+    private static synchronized void createTable(Connection conn) throws SQLException {
+        if (created)
+            return;
+        Statement stmt = conn.createStatement();
+        stmt.executeUpdate("DROP TABLE IF EXISTS user");
+        stmt.executeUpdate("CREATE TABLE IF NOT EXISTS user (name varchar primary key, age int)");
+        stmt.close();
+        created = true;
+    }
 
     private static Connection getConnection() throws SQLException {
         // 通过嵌入模式访问lealone数据库
@@ -53,20 +100,18 @@ public class CrudController {
     private final PreparedStatement insert;
     private final PreparedStatement find;
 
-    public CrudController() throws SQLException {
-        conn = getConnection();
-        Statement stmt = conn.createStatement();
-        stmt.executeUpdate("DROP TABLE IF EXISTS user");
-        stmt.executeUpdate("CREATE TABLE IF NOT EXISTS user (name varchar primary key, age int)");
-        stmt.close();
-        insert = conn.prepareStatement("INSERT INTO user(name, age) VALUES(?, ?)");
-        find = conn.prepareStatement("SELECT age FROM user WHERE name = ?");
+    public CrudService() {
+        try {
+            conn = getConnection();
+            createTable(conn);
+            insert = conn.prepareStatement("INSERT INTO user(name, age) VALUES(?, ?)");
+            find = conn.prepareStatement("SELECT age FROM user WHERE name = ?");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    // 打开url: http://localhost:8080/insert?name=zhh&age=18
-    @GetMapping("/insert")
-    public String insert(@RequestParam(value = "name", defaultValue = "zhh") String name,
-            @RequestParam("age") int age) {
+    public String insert(String name, int age) {
         try {
             insert.setString(1, name);
             insert.setInt(2, age);
@@ -77,16 +122,18 @@ public class CrudController {
         }
     }
 
-    // 打开url: http://localhost:8080/find?name=zhh
-    @GetMapping("/find")
-    public String find(@RequestParam("name") String name) {
+    public String find(String name) {
         try {
             find.setString(1, name);
             ResultSet rs = find.executeQuery();
-            if (rs.next()) {
-                return "user(name: " + name + ", age: " + rs.getInt(1) + ")";
-            } else {
-                return "user not found: " + name;
+            try {
+                if (rs.next()) {
+                    return "user(name: " + name + ", age: " + rs.getInt(1) + ")";
+                } else {
+                    return "user not found: " + name;
+                }
+            } finally {
+                rs.close();
             }
         } catch (SQLException e) {
             return "exception: " + e.getMessage();
