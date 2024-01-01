@@ -3,12 +3,12 @@
  * Licensed under the Server Side Public License, v 1.
  * Initial Developer: zhh
  */
-package org.lealone.plugins.spring;
+package com.lealone.plugins.spring;
 
 import java.util.concurrent.CountDownLatch;
 
-import org.lealone.main.Lealone;
-import org.lealone.plugins.tomcat.TomcatServer;
+import com.lealone.main.Lealone;
+import com.lealone.plugins.tomcat.TomcatServer;
 import org.springframework.boot.web.embedded.tomcat.TomcatWebServer;
 import org.springframework.boot.web.server.WebServerException;
 

@@ -3,7 +3,7 @@
  * Licensed under the Server Side Public License, v 1.
  * Initial Developer: zhh
  */
-package org.lealone.plugins.spring;
+package com.lealone.plugins.spring;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

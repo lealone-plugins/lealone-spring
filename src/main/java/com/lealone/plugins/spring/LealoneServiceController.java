@@ -3,7 +3,7 @@
  * Licensed under the Server Side Public License, v 1.
  * Initial Developer: zhh
  */
-package org.lealone.plugins.spring;
+package com.lealone.plugins.spring;
 
 import java.io.IOException;
 import java.util.Map;
@@ -11,9 +11,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.lealone.common.util.CaseInsensitiveMap;
-import org.lealone.plugins.service.ServiceHandler;
-import org.lealone.plugins.tomcat.TomcatServiceServlet;
+import com.lealone.common.util.CaseInsensitiveMap;
+import com.lealone.plugins.service.ServiceHandler;
+import com.lealone.plugins.tomcat.TomcatServiceServlet;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;

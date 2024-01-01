@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.lealone.plugins.spring;
+package com.lealone.plugins.spring;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
 @RestController
-@ComponentScan(basePackages = "org.lealone.plugins.spring")
+@ComponentScan(basePackages = "com.lealone.plugins.spring")
 public class SpringBootApplicationTest {
 
     public static void main(String[] args) throws Exception {
