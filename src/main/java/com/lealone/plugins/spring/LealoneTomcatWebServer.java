@@ -7,10 +7,11 @@ package com.lealone.plugins.spring;
 
 import java.util.concurrent.CountDownLatch;
 
-import com.lealone.main.Lealone;
-import com.lealone.plugins.tomcat.TomcatServer;
 import org.springframework.boot.web.embedded.tomcat.TomcatWebServer;
 import org.springframework.boot.web.server.WebServerException;
+
+import com.lealone.main.Lealone;
+import com.lealone.plugins.tomcat.TomcatServer;
 
 public class LealoneTomcatWebServer extends TomcatWebServer {
 
@@ -38,7 +39,7 @@ public class LealoneTomcatWebServer extends TomcatWebServer {
     private void startLealone() {
         CountDownLatch latch = new CountDownLatch(1);
         new Thread(() -> {
-            new Lealone().start(new String[0], latch);
+            new Lealone().start(new String[0], null, latch);
         }).start();
         try {
             latch.await();
